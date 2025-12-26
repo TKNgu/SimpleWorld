@@ -1,5 +1,4 @@
-use rand::Rng;
-use rand::seq::SliceRandom;
+use rand::{Rng, rng, seq::SliceRandom};
 use std::fs::File;
 use std::io::Read;
 use std::io::Result;
@@ -84,7 +83,7 @@ impl Land {
     }
 
     fn get_random_location(&self) -> Location {
-        let mut rng = rand::rng();
+        let mut rng = rng();
         Location {
             x: rng.random_range(0..self.size_x),
             y: rng.random_range(0..self.size_y),
@@ -142,16 +141,13 @@ impl Land {
 fn main() {
     let mut time = 0f32;
     let land_path = Path::new("data/land.bin");
-    let mut land = match Land::load(land_path) {
-        Ok(land) => land,
-        Err(_) => Land::new(1024usize, 1024usize),
-    };
+    let mut land = Land::load(land_path).unwrap_or_else(|_| Land::new(1024usize, 1024usize));
 
     let location = land.get_random_location();
     let mut trees = vec![Tree::new(&Seed { energy: 1f32 }, &location)];
     land.set_location(&location, LandTile::Tree);
 
-    let mut rng = rand::rng();
+    let mut rng = rng();
     let mut chill_trees: Vec<Seed> = Vec::new();
 
     loop {
